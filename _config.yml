@@ -1,13 +1,13 @@
 # Setup
-title:        Project or Site name
-tagline:      A responsive theme for your project on GitHub Pages
+title:        <i>Machine learning</i> learning
+tagline:      A blog about stuff I encounter on my <i>Machine learning</i> learning-journey
 baseurl:      ""
 paginate:     1
 
 # About/contact
 author:
-  name:       Author name
-  url:        http://yourhomepage.com 
+  name:       Lucas van Walstijn
+  url:        http://lucasvw.github.io
 
 # Gems
 gems:
