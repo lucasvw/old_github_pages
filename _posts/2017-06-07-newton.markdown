@@ -1,0 +1,123 @@
+---
+layout: default
+title:  "Newton-Raphson method and vectorization"
+date:   2017-06-08 12:00:00
+categories: main
+comments: true
+---
+
+## Introduction: the Newton-Raphson method
+
+The first time I was introduced to the Newton-Raphson method was a couple of years ago. I was studying physics and during a course on computational physics we had to optimize some function related to the [N-body problem][1]. About a week ago, I encountered Newton's method for the second time, during the [Stanford course][2] by Andrew Ng on machine learning. Prof. Ng introduces the Newton-Raphson method as an alternative to the very well known gradient descent algorithm. I really like the algorithm, because the process is so intuitive. Its best explained by simply looking at the iterations:
+
+![newton method](https://upload.wikimedia.org/wikipedia/commons/e/e0/NewtonIteration_Ani.gif)
+
+In short, the goal is to find $$x : f(x) = 0$$. You start at some random point $$x_0$$. Take the derivative $$f'(x_0)$$ to compute the tangent. Compute the intersection between the tangent and the zero, $$x_1$$. This x-coordinate $$x_1$$ is at least as close to $$x : f(x) = 0$$ as $$x_0$$.
+
+## Logistic regression
+
+In one of the exercises of the Stanford course, students are asked to first prove that the emperical loss function for logistic regression:
+
+\begin{equation}
+	J(\theta) = \frac{1}{m}\sum_{i} \log{1+e^{-y^i \theta^T x^i}}
+\end{equation}
+
+is positive semi-definite and thus has a single global optimum. Secondly, some data is provided and students have to implement the Newton-Raphson method to determine the parameters of a logistic regression.
+
+I proved the former by showing that the quadratic-form of the Hessian was larger-or-equal zero, and in doing so I had already computed the first and second order derivatives:
+
+{% raw %}
+\begin{align}
+	\frac{\delta}{\delta_l} J(\theta) &= \frac{-1}{m}\sum_{i}g(-y^i \theta^T x^i)y^i x^i_l \\\\\\\\
+	\frac{\delta^2}{\delta_l \delta_k} J(\theta) &= \frac{1}{m}\sum_{i}(g(-y^i \theta^T x^i))(1 - g(-y^i \theta^T x^i)) x^i_k x^i_l \\\\\\\\
+	\textrm{where }g(z) &= \frac{1}{1 + e^{-z}} \textrm{, the sigmoid-function}
+\end{align}
+{% endraw %}
+
+## Vectorization
+
+I used these results for my python implementation of the Newton-Raphson method, which was [unvectorized][3]. Unvectorized implementations are always a little unsatisfactory, since they tend to be large and have lots of (nested) loops. With all those indexes around, it is often difficult to debug in case something is not working as expected. Also, it is well-known that vectorization is much faster in performance. So, as a little test, I decided to do the vectorization and test how much faster this solution would be. Short anwser: **250 times faster**.
+
+Now -depending on the actual functions involved- vectorization is not super easy. It requires a good knowledge of matrix and vector multiplications and a certain amount of intuition.
+
+So I started with the argument for the sigmoid function. Currently, $$-y^i \theta^T x^i$$ gives a scalar. For each observation $$i$$, one scalar is computed. Instead of a single scalar, a column vector for all the observations should be computed. To achieve this, the $$\theta^T x^i$$ is replaced with $$X\theta$$ since:
+
+{% raw %}
+\begin{align}
+	X\theta = \begin{bmatrix}
+         -- x^1 -- \\\\\\\\
+         \vdots \\\\\\\\
+         -- x^m -- 
+        \end{bmatrix}
+        \cdot \theta
+        =
+        \begin{bmatrix}
+         -- x^1 \cdot \theta -- \\\\\\\\
+         \vdots \\\\\\\\
+         -- x^m \cdot \theta -- 
+        \end{bmatrix}
+\end{align}
+{% endraw %}
+
+Resulting in a column vector with all our estimates for $$y$$ (one for each observations). Next, I had to multiplicate each element in this vector with $$-y^i$$. Here, I can't use a dot-product since that sums everything up, and collapses to a scalar. Instead an element-wise multiplication is used: $$-y \circ X\theta$$. Accordingly I updated my [sigmoid function implementation][4] so that it takes vectors and matrices as input and returns objects of the same size.
+
+For the $$y^i$$ element outside of the sigmoid function, I also used an element-wise multiplication so that we are now at $$g(-y\circ X\theta)\circ y$$ which is still a column vector. Finally, this vector needs to multiplied with $$x_l^i$$ while collapsing on the observations ($$i$$) and expanding on the features ($$l$$). To do this we need to take the inner product with respect to $$i$$ and the outer product with respect to $$l$$. To refresh, an inner product between $$x$$ and $$y$$ is defined as:
+
+{% raw %}
+\begin{align}
+	x^Ty = \begin{bmatrix}
+		x_1 \\ \cdots \\ x_n
+		\end{bmatrix} \cdot
+		\begin{bmatrix}
+		y_1 \\\\\\\\
+		\vdots \\\\\\\\
+		y_n
+		\end{bmatrix}
+		= \sum x_i y_i
+\end{align}
+{% endraw %}
+
+Since we know that $$X$$ has each observation as a single row, and we need to take the inner product *over* the observations, we need to have individual observations as columns. Therefore we transpose $$X$$ and multiply in front to end up with:
+
+{% raw %}
+\begin{align}
+	\nabla_{\theta} J(\theta) = X^Tg(-y\circ X\theta)\circ y
+\end{align}
+{% endraw %}
+
+For the Hessian, we have to translate the $$x^i_k x^i_l$$ term. Since the summation is over $$i$$, there is an implied inner product over the observations, and an outer product over the features: $$X^TX$$. However, the $$g(-y^i \theta^T x^i))(1 - g(-y^i \theta^T x^i))$$ also needs to be considered, and more specifically during the inner-product (summation). This means this term has to be put in between. The simplest way to do this, is to construct a diagonal matrix with the values of the column vector on the diagonal:
+
+{% raw %}
+\begin{align}
+	g(-y^i \theta^T x^i))(1 - g(-y^i \theta^T x^i)) = 
+	\begin{bmatrix}
+		a_1 \\\\\\\\
+		\vdots \\\\\\\\
+		a_m
+	\end{bmatrix} =>
+	\begin{bmatrix}
+		a_1 \\ 0 \\ \cdots \\ 0 \\\\\\\\
+		0 \\ a_2 \\ \cdots \\ 0 \\\\\\\\
+		\\ \vdots \\\\\\\\
+		0 \\ 0 \\ \cdots \\ a_m
+	\end{bmatrix} = A
+\end{align}
+{% endraw %}
+
+With this matrix $$A$$ the expression for the Hessian becomes:
+
+{% raw %}
+\begin{align}
+	\nabla_{\theta}^2 J(\theta) = X^T A X
+\end{align}
+{% endraw %}
+
+Coming back to the code, these vectorized versions are implemented [here][5]. The last thing to do is to run both methods and compare the times. With the provided data, the unvectorized version takes on my system around 600 to 800 ms. The vectorized implementation takes around 2 to 3 ms. On average around **250 times as fast**!
+
+
+
+[1]:https://en.wikipedia.org/wiki/N-body_problem 
+[2]:http://cs229.stanford.edu/materials.html
+[3]:https://github.com/lucasvw/Newton-Raphson-on-logistic-regression/blob/97ea3bed7cd5bd146bc55affda552301c9f32848/newton_raphson.py#L25-L52
+[4]:https://github.com/lucasvw/Newton-Raphson-on-logistic-regression/blob/97ea3bed7cd5bd146bc55affda552301c9f32848/newton_raphson.py#L3-L4
+[5]:https://github.com/lucasvw/Newton-Raphson-on-logistic-regression/blob/97ea3bed7cd5bd146bc55affda552301c9f32848/newton_raphson.py#L7-L20

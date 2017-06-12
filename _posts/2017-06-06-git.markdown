@@ -3,6 +3,7 @@ layout: default
 title:  "[off-topic] How to explain GIT to a kid"
 date:   2017-06-06 12:00:00
 categories: main
+comments: true
 ---
 
 This weekend, I was explaining to a non-tech friend that I started this blog. I was pretty enthusiastic about github pages and wanted to tell him how cool it was that the site is just the representation of the remote master branch of a certain repo at Github.
