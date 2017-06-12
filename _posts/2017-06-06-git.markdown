@@ -5,13 +5,17 @@ date:   2017-06-06 12:00:00
 categories: main
 ---
 
-This weekend, I was explaining to a non-tech friend that I started this blog. I was pretty enthausiastic about github pages and wanted to tell him how cool it was that the site is just the representation of the remote master branch of a certain repo at Github.
+This weekend, I was explaining to a non-tech friend that I started this blog. I was pretty enthusiastic about github pages and wanted to tell him how cool it was that the site is just the representation of the remote master branch of a certain repo at Github.
 
 Far too late, I realized that my friend -being a documentary movie director- didn't know what git was and had no idea about repos, branches and everything I was generally talking about. I started mumbling and finished the story with a stale: "pretty cool right..". 
 
 The topic was long forgotten when the next day, while laying in the sun at a small beach in [Brandenburg][1], all of a sudden I found myself thinking about the following question: *How would you explain GIT to a kid?*. I think I picked this up, as an example of some stupid assessment question one could be confronted with when applying for some job. Anyway, I had nothing better to do and came up with the following:
 
-You like to paint right? Well, so do we.. at work, me and my colleagues really like to paint, we do it all the time. We paint on huge pieces of paper and all paint simultaneously, at the same time. With 5, 10 and sometimes even 100 people we draw the most beautiful things. Because it is difficult to find a room big enough for the paper and all the people, we do this on our computer. So everybody is sitting behind this own computer and painting from there. You can imagine, that when we all paint at the same time, it can happen that one person is painting accidently at a spot where somebody else has already been painting! If this happens, there is always an argument between the two, so we try to prevent this as much as possible. Actually, to make sure this never happens, we use a system: it's called GIT and makes sure we never paint over a spot where somebody is already painting, pretty cool right..
+You like to paint right? Well, so do we.. at work, me and my colleagues really like to paint, we do it all the time. We paint on huge pieces of paper and all paint simultaneously, at the same time. With 5, 10 and sometimes even 100 people we draw the most beautiful things. 
+
+Because it is difficult to find a room big enough for the paper and all the people, we do this on our computer. So everybody is sitting behind this own computer and painting from there. You can imagine, that when we all paint at the same time, it can happen that one person is painting accidently at a spot where somebody else has already been painting! If this happens, there is always an argument between the two, so we try to prevent this as much as possible. 
+
+Actually, to make sure this never happens, we use a system: it's called GIT and makes sure we never paint over a spot where somebody is already painting, pretty cool right?
 
 
 ![collaborative paiting](http://www.ideaco.org/wp/wp-content/uploads/2014/07/xyc-painting2-web.jpg)
