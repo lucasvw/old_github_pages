@@ -15,3 +15,9 @@ gems:
 
 #Others
 markdown: kramdown
+
+defaults:
+  - scope:
+      path: "assets/img"
+    values:
+      image: true
