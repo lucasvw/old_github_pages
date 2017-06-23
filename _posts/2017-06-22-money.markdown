@@ -44,6 +44,17 @@ Here is my train of thought:
 However, there is no guarentee that the sum of these samples actually amounts to the number of money that is being circulated each round ($$n$$ players $$\times 1$$ dollar = $$n$$ dollar). 
 Nonetheless, we know the mean of the binomial distribution equals $$np$$ => $$(n-1)*\frac{1}{n-1} = 1$$. So each player is expected to gain a single dollar each round. Because this is also the amount each person gives away, the *expected* amount of money in the game will remain constant. For now, I am quite okay with this assumption.
 
+With the binomial distribution we can generate the following (incomplete) pay-off table.
+
+| Money lost    | Money gained  | Net money  | Probability |
+| :-----------: |:-------------:| :-----:    | :-----: |
+| 1            | 0             | -1         | 36.7%|
+| 1            | 1             |   0        | 37.0%|
+| 1            | 2             |    1       | 18.5%|
+| 1            | 3             |    2       | 6.1%|
+| 1            | 4             |    3       | 1.5%|
+| 1            | 5            |    2       | 0.3%|
+
 The following video shows a single *game* with 5000 *rounds*:
 
 {%raw%}
