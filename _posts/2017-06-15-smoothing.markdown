@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Smoothing data with weighted least squares regression"
+description : "Weighted least squares (WLS) is compares to ordinary least squared (OLS) and used to smooth (spectral) data."
 date:   2017-06-15 12:00:00
 categories: main
 comments: true

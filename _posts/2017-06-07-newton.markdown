@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Newton-Raphson method and vectorization"
+description : "Blog post about the Newton Raphson method and logistic regression. Both a vectorized and unvectorized implementation are presented and compared."
 date:   2017-06-08 12:00:00
 categories: main
 comments: true
