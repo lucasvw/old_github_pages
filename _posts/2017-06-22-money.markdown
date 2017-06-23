@@ -55,14 +55,13 @@ With the binomial distribution we can generate the following (incomplete) pay-of
 | 1            | 4             |    3       | 1.5%|
 | 1            | 5            |    2       | 0.3%|
 
-The following video shows a single *game* with 5000 *rounds*:
+The following video shows a single *game* with around 6000 *rounds*:
 
 {%raw%}
 <video width="640" height="400" controls preload> 
     <source src="/assets/videos/money.mp4"></source> 
 </video>
 {% endraw %}
-
 
 {% highlight python %}
 import numpy as np
@@ -90,6 +89,7 @@ def init():
 def animate(i):
     global bank, ax
     bank = bank + np.random.binomial(n, p, amount_of_people) - 1
+    bank[bank<0] = 0
     bank = np.sort(bank)
     for rect, y in zip(bar, bank):
         rect.set_height(y)
