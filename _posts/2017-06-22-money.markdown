@@ -24,44 +24,79 @@ Turns out, this is not really the case (or actually *really not*). To show this,
 </video>
 {% endraw %}
 
-This simulation is based on people randomly chosing a person to give their dollar to and then summing it all up. It is thus an exact simulation. I was wondering if I could come up with a simulation based on statistics.
+The simulation made by Dan, is an exact simulation. For each round, each *player* with money picks at random the *player* to give their dollar to. Then all the money is counted and the next round can begin. I was wondering if I could come up with a simulation based on probability and statistics.
 
 Here is my train of thought:
 
-- Each player gives 1 dollar away each round.
-- Each player will receive either 0, 1, 2, ... or $$n - 1$$ (with $$n$$ players) dollar each round.
-- There are $$n - 1$$ other players, so player $$i$$ gives a dollar to player $$j$$ with probability $$p = 1/(n-1)$$
-- Then, the amount of money each player will receive is a random variable following the binomial distribution. Since the binomial distribution is the discrete probability distribution of the number of successes in a sequence of n independant experiments.
-
+- There are $$m$$ players.
+- In each round, each player (with money) gives 1 dollar to some other player.
+- In each round, each player will receive either 0, 1, 2, ... or $$m - 1$$ dollar each round.
+- Since there are $$m - 1$$ other players, the probability that the dollar from one player is given to a certain other player (in a single round) equals $$p = 1/(m-1)$$.
+- Seen from the perspective of one player: there are $$m-1$$ other players, that each give with probability $$p = 1/(m-1)$$ a dollar to me (in a single round).
+- That sounds a lot like a binomial distribution, the distribution of the number of successes (does other player $$i$$ give their dollar to me?) in a sequence of $$n$$ ($$=m-1$$) independant experiments all with the same probability ($$p = 1 / (m-1)$$).
+- The binomial distribution with $$n$$ experiments, $$k$$ successes and probability $$p$$ of a success is given by: 
 {% raw %}
 \begin{align}
 	\Pr(X = k) = {n \choose k}p^k(1-p)^{n-k}
 \end{align}
 {% endraw %}
 
-- Now we can draw $$n$$ samples from this distribution to denote the amount of money each player obtains in a single round.
+Now we can draw $$m$$ samples from this distribution to denote the amount of money each player obtains in a single round.
 
-However, there is no guarentee that the sum of these samples actually amounts to the number of money that is being circulated each round ($$n$$ players $$\times 1$$ dollar = $$n$$ dollar). 
-Nonetheless, we know the mean of the binomial distribution equals $$np$$ => $$(n-1)*\frac{1}{n-1} = 1$$. So each player is expected to gain a single dollar each round. Because this is also the amount each person gives away, the *expected* amount of money in the game will remain constant. For now, I am quite okay with this assumption.
+However, there is no guarentee that the sum of these samples actually amounts to the number of money that is being circulated each round ($$m$$ players $$ \times 1$$ dollar = $$m$$ dollar). 
+Nonetheless, we know the mean of the binomial distribution equals $$np = (m-1)*\frac{1}{m-1} = 1$$. So each player is expected to gain a single dollar each round. Because this is also the amount each person gives away, the *expected* amount of money in the game will remain constant. For now, I am quite okay with this assumption.
 
 With the binomial distribution we can generate the following (incomplete) pay-off table.
 
 | Money lost    | Money gained  | Net money  | Probability |
 | :-----------: |:-------------:| :-----:    | :-----: |
-| 1            | 0             | -1         | 36.7%|
+| 1            | 0             | -1         | 36.6%|
 | 1            | 1             |   0        | 37.0%|
 | 1            | 2             |    1       | 18.5%|
 | 1            | 3             |    2       | 6.1%|
 | 1            | 4             |    3       | 1.5%|
 | 1            | 5            |    2       | 0.3%|
+| ..  | .. | .. | .. |
+| 1            | 99            | 98 | $$\approx$$ 0.0%|
 
-The following video shows a single *game* with around 6000 *rounds*:
+The following video shows a single *run* of 50 people distributing money for around 5000 *rounds*, they start with 50 dollar each.
 
 {%raw%}
 <video width="640" height="400" controls preload> 
     <source src="/assets/videos/money.mp4"></source> 
 </video>
 {% endraw %}
+
+**Edit based on a question from Dan Goldstein**
+
+This model works fine for as long as all players have at least 1 dollar. If this is not the case, then those people who don't have money, cannot participate in giving money (naturally, they can still receive money). So far, the model does not take this into account. Initially, I thought the model could be easily extended to cover this case. When we denote the amount of people who don't have money in round $$i$$ by $$l_{(i)}$$ then we set the parameters for the binomial distribution in round $$i$$ to:
+{% raw %}
+\begin{align}
+    n_{(i)} &= m - 1 - l_{(i)} \\\\\\\\
+    p_{(i)} &= \frac{1}{1 - m}
+\end{align}
+{% endraw %}
+The probability that a player receives payment from another one thus remains the same, but the amount of people that distribute money is reduced by the people without money. Seems easy, seems logical. However, if we compute the total amount to be spend ($$m-l$$) in each round no longer equals the expected amount to be received ($$m\cdot n \cdot p). As can be seen from:
+{% raw %}
+\begin{align}
+    m \cdot n \cdot p &\stackrel{?}{=} m - l \\\\\\\\
+    m \cdot (m - 1 -l) \cdot \frac{1}{m-1} &\stackrel{?}{=} m - l \\\\\\\\
+    m^2 - m - ml &\stackrel{?}{=} (m - l)(m - 1) \\\\\\\\
+    0 &\stackrel{?}{=} l \\\\\\\\
+\end{align}
+{% endraw %}
+Which does not hold whenever $$l \neq 0 $$. Thinking a little more about the problem one can see that we actually have two different regimes, depending on people have money or not. For those people with money, the rules above for $$n$$ and $$p$$ are correct. But for people without money, the amount of people who can give them money $$(n)$$ becomes: $$n = (m - 1) - (l-1) = m - l$$. Which translates to *all the other people* $$(m-1)$$ minus *the people who don't have any money, except me* $$(l - 1)$$. Let's do the math to see if this checks out:
+{% raw %}
+\begin{align}
+    m \cdot n \cdot p &\stackrel{?}{=}  m - l \\\\\\\\    
+    (m-l) \cdot \frac{m-1-l}{m-1} + l \cdot \frac{m-l}{m-1} &\stackrel{?}{=} m - l \\\\\\\\
+    \frac{m^2 - lm - m + l}{m-1} &\stackrel{?}{=} m - l \\\\\\\\
+    \frac{(m-1)(m-l)}{m-1} &\stackrel{?}{=} m - l \\\\\\\\
+    m - l &= m - l
+\end{align}
+{% endraw %}
+And it does! This makes the updating of the bank in each round a little more complicated.
+
 
 {% highlight python %}
 import numpy as np
@@ -88,14 +123,19 @@ def init():
 
 def animate(i):
     global bank, ax
-    bank = bank + np.random.binomial(n, p, amount_of_people) - 1
-    bank[bank<0] = 0
+    people_without_money = sum(bank==0)
+    smpl_w_money = np.random.binomial(amount_of_people - 1 - people_without_money, p, amount_of_people)
+    smpl_wo_money = np.random.binomial(amount_of_people - people_without_money, p, amount_of_people)
+    smpl_w_money[bank == 0] = 0
+    smpl_wo_money[bank > 0] = 0
+    sample = smpl_w_money + smpl_wo_money
+    bank = bank + sample - 1*(bank > 0)
     bank = np.sort(bank)
     for rect, y in zip(bar, bank):
         rect.set_height(y)
     ax.set_ylim(0,max(bank))
     ax.set_title(i)
-    return bar
+    #print(sum(bank)/amount_of_people)
 
 anim = animation.FuncAnimation(fig, animate, init_func=init,
                                frames=1500, interval=1, blit=False)
