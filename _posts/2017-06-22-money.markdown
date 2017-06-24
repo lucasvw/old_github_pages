@@ -76,7 +76,7 @@ This model works fine for as long as all players have at least 1 dollar. If this
     p_{(i)} &= \frac{1}{1 - m}
 \end{align}
 {% endraw %}
-The probability that a player receives payment from another one thus remains the same, but the amount of people that distribute money is reduced by the people without money. Seems easy, seems logical. However, if we compute the total amount to be spend ($$m-l$$) in each round no longer equals the expected amount to be received ($$m\cdot n \cdot p). As can be seen from:
+The probability that a player receives payment from another one thus remains the same, but the amount of people that distribute money is reduced by the people without money. Seems easy, seems logical. However, if we compute the total amount to be spend ($$m-l$$) in each round no longer equals the expected amount to be received $$(m\cdot n \cdot p)$$. As can be seen from:
 {% raw %}
 \begin{align}
     m \cdot n \cdot p &\stackrel{?}{=} m - l \\\\\\\\
