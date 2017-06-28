@@ -214,12 +214,13 @@ To come to a conclusion, we have seen that in the most favourable situation for 
 
 What remains to be done is some analysis on violations of the modeling assumptions, and add some noise to the data and see how GDA copes with that. But that's for another post..
 
-
+The code for the simulations can be found [here][4]
 
 
 [1]:https://en.wikipedia.org/wiki/Bernoulli_distribution
 [2]:https://en.wikipedia.org/wiki/Law_of_total_probability
 [3]:/assets/images/lda_sigmoid.png
+[4]:https://github.com/lucasvw/logisticregression-gda-simulation
 
 <sup>1</sup>That is.. once we have determined the parameters $$\theta$$ of our model, which is done by maximizing the likelihood of the parameters, but that is not the topic at the moment.
 
