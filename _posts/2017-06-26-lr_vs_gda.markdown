@@ -1,0 +1,231 @@
+---
+layout: post
+title:  "Logistic regression and GDA, a theoretical and practical comparison"
+date:   2017-06-26 12:00:00
+categories: main
+comments: true
+---
+ 
+## Introduction: discriminative and generative learning algorithms
+
+As an alternative to the very well-known logistic regression model, I really enjoyed learning about generative learning algorithms. Especially finding out that the gaussian discriminant analysis model (a specific generative learning algorithm that will be the focus of this post) can be written in the form
+
+{% raw %}
+\begin{align}
+	\Pr(y = 1 | x; \theta) = \frac{1}{1 + e^{-\theta^Tx}}
+\end{align}
+{% endraw %}
+
+was astonishing to me, since it is exactly the hypothesis used in logistic regression. In fact, I remember that when I was first learning about logistic regression I kind of wondered where this hypothesis was coming from. The fact that this sigmoid function (as it is called when defined as a function of $$z=\theta^Tx$$) was derived as a result of GLM's and the exponential family, demystified it a little. But then on the other hand, the exponential family with its *natural parameter* $$\mu$$ and its *sufficient statistic* $$T(y)$$ are also not overly intuitive and deriving GLM's also feels somewhat like a trick. 
+
+But I am getting ahead of myself. What I wanted to explain here is the difference between *discriminative* and *generative* learning algorithms. In short, discriminative learning algorithms try to model $$\Pr(y \vert x)$$ directly. For logistic regression where $$y \in \{0,1\}$$ this translates to:
+{% raw %}
+\begin{align}
+	\Pr(y=1|x;\theta) &= h_{\theta}(x) \\\\\\\\
+	\Pr(y=0|x;\theta) &= 1 - h_{\theta}(x) \\\\\\\\
+\end{align}
+{% endraw %}
+
+With the hypothesis is defined as:
+
+{% raw %}
+\begin{align}
+	h_{\theta}(x) = g(\theta^Tx) = \frac{1}{1 + e^{-\theta^Tx}} \in (0,1)
+\end{align}
+{% endraw %}
+
+So that the value of the hypothesis evaluated at a certain $$x$$ and parameterized by $$\theta$$ denotes the probability that $$y$$ equals $$1$$. This is thus a *discriminative* learning algorithm, when someone presents us an input $$x$$, we get directly a probability for $$y$$ from our hypothesis<sup>1</sup>.
+
+A generative learning algorithm set out for a similar task would do something differently. Let's say we want to classify if an image contains a hotdog $$(y=1)$$, or a not-hotdog $$(y=0)$$. Then we first make a model for what a hotdog looks like $$(\Pr(x \vert y = 1))$$ and second a model for what a not-hotdog looks like $$(\Pr(x \vert y = 0))$$. When a new image then comes in (say of a pizza), we compare the probabilities of our two models and make the prediction on whichever has the higher probability: hotdog, or not-hotdog.
+
+{% raw %}
+<div style="text-align:center">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/ACmydtFDTGs" frameborder="0" allowfullscreen></iframe>
+</div>
+{% endraw %}
+
+## Derivation of the GDA model and its link to logistic regression
+
+So let's put this into practice, how are we going to model $$\Pr(x \vert y = 1)$$ and $$\Pr(x \vert y = 0)$$? Well, in the gaussian discriminant analysis model, we are going to *assume* these terms are modelled by a multivariate normal distribution with shared covariance matrix $$\Sigma$$. It might seem a little strange that $$\Sigma$$ is shared, and indeed this is not strictly necessary. As it turns out, using only one covariance matrix translates to a solution with a linear decision boundary. With the use of two covariance matrices, the decision boundary becomes quadratic. For this reason the former algorithm is also called *linear discriminant analysis* and the latter *quadratic discriminant analysis*. For the purpose of comparison with logistic regression, the linear version will be used here. 
+
+Anyway, now we now have:
+
+{% raw %}
+\begin{align}
+	x | y = 1 &\sim \mathcal{N}(\mu_1, \Sigma) \\\\\\
+	x | y = 0 &\sim \mathcal{N}(\mu_0, \Sigma) 
+\end{align}
+{% endraw %}
+
+Let's visualize this to get a better feeling for what we are doing. For convenience we will take $$x \in \mathbb{R}$$. In the figure below, the points on the y-axis represent the individual observations $$(x^i)$$ of the training data. Each observation is colored by its associated class, if $$y^i = 0$$, $$x^i$$ is colored red, and if $$y^i = 1$$, $$x^i$$ is colored blue. Next, two gaussians are fitted to the data, one for the red points and one for the blue points.
+
+>This means we need to find values for the parameters $$\mu_1$$, $$\mu_0$$ and $$\Sigma$$, based on our data. This is rather standard, so I will not describe that here in detail. For the 1-dimensional case, $$\mu_0$$ is simply the average over all $$x^i$$ for which $$y^i$$ equals 0 and equivalently $$\mu_1$$ is the average over all $$x^i$$ for which $$y^i$$ equals 1. And: $$\Sigma = \sigma = \frac{1}{m} \sum_{i}(x^i - y_{x^i})^2$$
+
+
+As shown in the legend, these two gaussians represent our models for the input data, given the output. In other words, one is the model for what hotdogs look like, and the other for what not-hotdogs look like. Now you can probably guess what the black dashed line is supposed to be. Let's say we obtain a new sample $$x = 0.5$$. Based on our two models we can compute the probability that this data is observed, *given that it came from either class*. We will thus predict the class, with the higher probability. In this case, we will predict class 0, since the red curve exceeds the blue curve for $$x=0.5$$. The black dashed line shows the decision boundary since it is drawn at the point where the two curves have the same value. Anything right from the line will be classified as 1, anything left from the line will be classified as 0.
+
+![1d](/assets/images/1d_gda.png) 
+
+So are we done yet? Well, if we only want to make predictions "0" or "1" than yes, we are actually done. However, we can do better. With the use of Bayes rule, we can also put a *probability* on our classification. So instead of just saying "our prediction for this $$x$$ equals $$y$$", we can say: "our prediction for $$x$$ equals $$y$$, with probability $$p$$". This is reasonable because if you think of the previous figure, we can be much more certain that an observed $$x=-1$$ is classified as 0, as an observed $$x=0.5$$ since it lies much further away from the decision boundary.
+
+So let's introduce Bayes rule, which allows us to flip the conditionals:
+
+{% raw %}
+\begin{align}
+	\Pr(y = 1|x) &= \frac{\Pr(x | y = 1) \cdot \Pr(y = 1)}{\Pr(x)} \\\\\\
+	\Pr(y = 0|x) &= \frac{\Pr(x | y = 0) \cdot \Pr(y = 0)}{\Pr(x)}
+\end{align}
+{% endraw %}
+
+So, for each of the terms on the right hand side, we need to find an expression. The two conditional probabilities on the right hand side we alreay have, these are our gaussian models. What about $$\Pr(y = 1)$$ and $$\Pr(y = 0)$$? Because we are classifying between either of two things, it makes sense to model the random variable $$Y$$ with the [Bernoulli distribution][1]. This distribution, has one parameter $$\phi$$ which is the probability that $$y = 1$$. Very intuitively, this is simply estimated by the fraction of data which have $$y^i = 1$$.
+
+>In Bayesian statistics, this distribution is called the *prior* of $$Y$$. It expresses the beliefs about $$Y$$ *before* evidence is taken into account. The distribution on the left side $$\Pr(y\vert x)$$ is called the *posterior* distribution of $$Y$$, since that represents the beliefs about $$Y$$ *after* evidence (in the form of $$x$$) is taken into account.
+
+Then we are left with the denominator, this can simply be written in terms we already know with the following equation (by the [law of total probability][2]):
+
+{% raw %}
+\begin{align}
+	\Pr(x) = \Pr(x | y = 1) \cdot \Pr(y = 1) + \Pr(x | y = 0) \cdot \Pr(y = 0)
+\end{align}
+{% endraw %}
+
+Cool, now we have everything we need to compute $$\Pr(y = 1 \vert x)$$! Let's put everything in one figure:
+
+![1d_sigmoid](/assets/images/1d_gda_sigmoid.png) 
+
+We observe that the the probability of our estimate for $$y = 1 \vert x $$ increases from 0 on the left, to 1 on the right. Moreover, we see that the probability at point $$x = 1$$ equals 0.5, this is also exactly the point where the the two models predict an equal probability, the decision boundary! The fact that our posterior estimates this point with a probability 0.5 makes sense, the algorithm can't really make a prediction here, its a 50-50% shot. 
+
+Also, the form of the green curve resembles the sigmoid function. And in fact, it can be [shown][3] that the expression for $$\Pr(y \vert x = 1)$$ (the green line), can be rewritten exactly in this form!
+
+If both logistic regresion and GDA have the same, are they the same model? Interestingly no, although they can be written in the same form, the parameters of the model $$\theta$$ are estimated quite differently. And in fact, both techniques will also result in different parameters, and so the decision boundary will not be the same. As it turns out, the GDA model is actually more efficient (meaning it needs less data to learn) in the case where the data is (aproximately) from a multivariate gaussian. Intuitively, this can be understood that the GDA model uses this extra information to make a more efficient estimate. On the other hand, logistic regression is more robust and less prone to incorrect model specifications because it simply does not make any assumptions on the distribution of the data. The price is pays for this, is that it is less efficient.
+
+In the next section, we will perform simulations to compare performance of both algorithms.
+
+## Simulations: comparison of performance
+
+The data is going to be created according to:
+
+{% raw %}
+\begin{align}
+	x | y = 1 &\sim \mathcal{N}(\frac{1}{\sqrt{2}}\begin{bmatrix}
+         d \\\\\\
+         d 
+        \end{bmatrix}, \Sigma \\\\\\
+	x | y = 0 &\sim \mathcal{N}(\frac{-1}{\sqrt{2}}\begin{bmatrix}
+         d \\\\\\
+         d 
+        \end{bmatrix}, \Sigma \\\\\\
+\end{align}
+{% endraw %}
+
+The input features $$x$$ will thus be in $$\mathbb{R}^2$$ and the euclidean distance between the centers is:
+
+{% raw %}
+\begin{align}
+\sqrt{\Big( \frac{d}{\sqrt{2}} - \frac{-d}{\sqrt{2}}\Big)^2 + \Big( \frac{d}{\sqrt{2}} - \frac{-d}{\sqrt{2}}\Big)^2} = d
+\end{align}
+{% endraw %}
+
+To start I will use a distance of 2 and a covariance matrix:
+
+{% raw %}
+\begin{align}
+	\Sigma = \begin{bmatrix}
+         1  \\ 0 \\\\\\\\
+         0 \\ 1
+        \end{bmatrix}
+\end{align}
+{% endraw %}
+
+So each feature has unit variance and there is no covariance (correlation) between the features. Also the distance is much larger than the variance, so there is little overlapping data. The following figure shows 200 observations from this distribution:
+
+![1d_sigmoid](/assets/images/101.png) 
+
+Next, we are going to split our data in a train and test set with a 0.2:0.8 ratio. The idea is here to get a very solid estimate on the test error. The logistic regression is computed with a cross validation step (5-fold) to set the value for the regularization parameter C. The GDA model is implemented by first manually computing the parameters $$\phi, \mu_1, \mu_2 \textrm{ and } \Sigma$$. And next computing $$\theta$$ and $$\theta_0$$ according to [this derivation][3]. We then create a new logistic classifier, set the parameters $$\theta$$ and $$\theta_0$$ and then we are good to go to make a scoring for both algorithms based on the test set. The procedure of sampling data, estimating the model and scoring of the test data is repeated 100 times. So that we have two scoring arrays of 100 entries for both algorithms. 
+
+In the next step we are going to perform linear regression to find out if there is a difference in scoring between both algorithms. For that purpose the $$y$$ vector is created by concatenating the two scoring vectors. The design matrix $$X$$ consists of an intercept (const) and a dummy variable (x1). This dummy variable will be 1 for the case that the scoring comes from the GDA model. This way, the const term will capture the effect of the logistic regression model (the baseline) and x1 will capture the increase in performance by the GDA model. This results in the following output:
+
+    ==============================================================================
+                     coef    std err          t      P>|t|      [0.025      0.975]
+    ------------------------------------------------------------------------------
+    const          0.9782      0.001    833.353      0.000       0.976       0.981
+    x1             0.0019      0.002      1.130      0.260      -0.001       0.005 
+    ==============================================================================
+
+This is not extremely spectacular. We observe a high coefficient (0.978) for the logistic model and a very small (0.0019) but postive effect for the GDA model. The logistic model thus has an averaged accuracy of 97.8% and the GDA model does only 0.19 percentage point (pp) better. Moreover, the GDA term is not statistically significant, so we can't reject the hypothesis that the GDA model does better. This is not surprising since with these parameters, the data is more or less linearly seperable and it is expected that both models will do good on such data.
+
+Increasing the variance of both features to 2, only leads to a worse baseline:
+
+    ==============================================================================
+                     coef    std err          t      P>|t|      [0.025      0.975]
+    ------------------------------------------------------------------------------
+    const          0.9197      0.002    426.415      0.000       0.915       0.924
+    x1             0.0037      0.003      1.209      0.228      -0.002       0.010
+    ==============================================================================
+
+So instead, let's increase the variance of just one feature to 4 and reset the other back to 1:
+
+    ==============================================================================
+                     coef    std err          t      P>|t|      [0.025      0.975]
+    ------------------------------------------------------------------------------
+    const          0.9211      0.002    370.639      0.000       0.916       0.926
+    x1             0.0197      0.004      5.602      0.000       0.013       0.027
+    ==============================================================================
+
+And we are in business! The baseline still performs well at 92%, but the GDA model has an average increase of about 2pp, and its estimate is significant.
+
+Increasing the difference between the variances even more, let's the GDA model outperform the baseline slightly more, but the difference is not very large. $$\Sigma = \begin{bmatrix} 1 \ 0 \\ 0 \ 6 \end{bmatrix}$$
+
+    ==============================================================================
+                     coef    std err          t      P>|t|      [0.025      0.975]
+    ------------------------------------------------------------------------------
+    const          0.9137      0.003    342.560      0.000       0.908       0.919
+    x1             0.0211      0.004      5.583      0.000       0.014       0.029
+    ==============================================================================
+
+Adding some covariance also doesn't change that much: $$\Sigma = \begin{bmatrix} 1 \ 1 \\ 1 \ 6 \end{bmatrix}$$
+
+    ==============================================================================
+                     coef    std err          t      P>|t|      [0.025      0.975]
+    ------------------------------------------------------------------------------
+    const          0.9035      0.003    339.146      0.000       0.898       0.909
+    x1             0.0193      0.004      5.126      0.000       0.012       0.027
+    ==============================================================================
+
+Increasing the number of data to 500, favours the baseline: $$\Sigma = \begin{bmatrix} 1 \ 0 \\ 0 \ 6 \end{bmatrix}$$ 
+
+    ==============================================================================
+                     coef    std err          t      P>|t|      [0.025      0.975]
+    ------------------------------------------------------------------------------
+    const          0.9300      0.001    668.716      0.000       0.927       0.933
+    x1             0.0075      0.002      3.801      0.000       0.004       0.011
+    ==============================================================================
+
+Decreasing the number of data to 50, favours the GDA model:
+
+    ==============================================================================
+                     coef    std err          t      P>|t|      [0.025      0.975]
+    ------------------------------------------------------------------------------
+    const          0.8835      0.005    162.250      0.000       0.873       0.894
+    x1             0.0658      0.008      8.538      0.000       0.051       0.081
+    ==============================================================================
+
+To come to a conclusion, we have seen that in the most favourable situation for GDA (where the data is created from a multivariate gaussian distribution) that whenever the data is not linearly seperable and rather small, GDA does outperform logistic regression with about 2pp.
+
+What remains to be done is some analysis on violations of the modeling assumptions, and add some noise to the data and see how GDA copes with that. But that's for another post..
+
+
+
+
+[1]:https://en.wikipedia.org/wiki/Bernoulli_distribution
+[2]:https://en.wikipedia.org/wiki/Law_of_total_probability
+[3]:/assets/images/lda_sigmoid.png
+
+<sup>1</sup>That is.. once we have determined the parameters $$\theta$$ of our model, which is done by maximizing the likelihood of the parameters, but that is not the topic at the moment.
+
+
+
+
+
+
+
