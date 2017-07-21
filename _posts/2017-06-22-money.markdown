@@ -65,15 +65,24 @@ The following video shows a single *run* of 50 people distributing money for aro
 </video>
 {% endraw %}
 
-Now the thing is, that (in hindsight admittedly..), I don't think that the result is actually so counter-intuitive. And for that we will make a de-tour through coin-flipping. Consider a fair coin so that the change of getting heads for a single flip is $$\frac{1}{2}$$. Now, if I flip the coin 10 times, I *expect* to see 5 ( = $$0.5 * 10$$) heads. Let's do this a couple of times and note the amount of heads we see after 10 flips:
+Now the thing is, that (in hindsight admittedly), I don't think that the result is actually so counter-intuitive. And for that we will make a de-tour through coin-flipping. Consider a fair coin so that the chance of getting heads for a single flip is $$\frac{1}{2}$$. 
+Now, if I flip the coin 10 times, I *expect* to see 5 ( = $$0.5 * 10$$) heads. Let's do this a couple of times and note the amount of heads we see after 10 flips:
 4
+
 6
+
 5
+
 4
+
 4
+
 5
+
 5
+
 9 (!!)
+
 And there is it, although we very often see values close to the expected value (5), if we repeat this experiment long enough we run into an example where we see 9 heads! That's a lot! When this happens in real life, people often shout at eachother: "what a coincidence!!!". For example when they ran into somebody they know while on vacation in a distant country. Although if you think about it for a minute, it is not such a big coincidence at all. It's just the result of repeating the same experiment over and over. Most of the time you will end up with the thing you expect, but sometimes you get a totally different result. Now to return to the topic of this post, most of the people will remain around the amount of money they initially start with. In some round they will gain some money, in other rounds they will lose some money. But there are also some lucky people, which will be on a streak for 10 or even 20 rounds and gather a far amount of money over this time. For the same reasons there will also be players with a losing streak. This will not happen for many people, but remember we are playing the game with 100 persons. And the chance that this happens to *at least* one of the 100 players is actually quite large. 
 
 Stated in other words, the chance of a winning streak happening to *one specific player*, is very small. But when we have 100 players, which all have a small chance of going on a winning (or losing) streak, we definitely expect at least one of the players, to actually succeed. Eventhough individual chances are very small, simply because there are 100 players we expect some freak results.
