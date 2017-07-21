@@ -32,9 +32,8 @@ Here is my train of thought:
 - In each round, each player (with money) gives 1 dollar to some other player.
 - Since there are $$m$$ players. For a single player $$A$$, there are $$m-1$$ other players.
 - In each round, player $$A$$ will receive either 0, 1, 2, ... or $$m - 1$$ dollar each round. If none of the other $$m - 1$$ players picks player $$A$$, player A receives 0 dollar that round. If 1 of the others picks player $$A$$, this player receives 1 dollar etc etc.
-- Since there are $$m - 1$$ other players, the probability that the dollar from one specific other player ends up with player $$A$$ (in a single round) equals $$p = 1/(m-1)$$.
 - Seen from the perspective of an individual player: there are $$m-1$$ other players, that each give with probability $$p = 1/(m-1)$$ a dollar to me (in a single round).
-- That sounds a lot like a binomial distribution, the distribution of the number of successes (does other player $$i$$ give their dollar to me?) in a sequence of $$n$$ ($$=m-1$$) independant experiments all with the same probability ($$p = 1 / (m-1)$$).
+- That sounds a lot like a binomial distribution, the distribution of the number of successes (does other player $$i$$ give their dollar to me?) in a sequence of $$n$$ ($$=m-1$$) independant experiments all with the same probability $$p$$ ($$= 1 / (m-1)$$).
 - The binomial distribution with $$n$$ experiments, $$k$$ successes and probability $$p$$ of a success is given by: 
 {% raw %}
 \begin{align}
@@ -42,7 +41,9 @@ Here is my train of thought:
 \end{align}
 {% endraw %}
 
-Now we can draw $$m$$ samples from this distribution, one for each player of the game in a single round. This sample thus denotes the amount of money each single player receives in this round. Naturally, the money that is spend each round, should equal the amount of money that is received each round. However, because the amount that is received is now stochastic (sampled from a binomial distribution) there is no guarentee that this is the case. Nonetheless, we know the mean of the binomial distribution equals $$np = (m-1)*\frac{1}{m-1} = 1$$. So each player is expected to gain a single dollar each round. Because this is also the amount each person gives away, the *expected* amount of money in the game will remain constant. For now, I am quite okay with this assumption.
+Now we can draw $$m$$ samples from this distribution, one for each player of the game in a single round. This sample thus denotes the amount of money each single player receives in this round. This amount should naturally equal the amount that is spend each round. However, because the amount that is received is now stochastic (sampled from a binomial distribution) there is no guarentee that this is the case.
+
+Nonetheless, we know the mean of the binomial distribution equals $$np = (m-1)*\frac{1}{m-1} = 1$$. So each player is expected to gain a single dollar each round. Because this is also the amount each person gives away, the *expected* amount of money in the game will remain constant. For now, I am quite okay with this assumption. And in fact, this makes sure that the *expected* total amount of money in the game is stable.
 
 With the binomial distribution we can generate the following (incomplete) pay-off table.
 
