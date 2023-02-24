@@ -1,7 +1,7 @@
 # Setup
 title:        <i>Machine learning</i> learning
 tagline:      A blog about stuff I encounter on my <i>Machine learning</i> learning-journey
-baseurl:      ""
+baseurl:      "https://lucasvw.github.io/old_github_pages"
 paginate:     1
 
 # About/contact
